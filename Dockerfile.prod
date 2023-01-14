@@ -1,0 +1,18 @@
+FROM golang:1.19 as dependencies
+
+WORKDIR /gomod
+COPY go.mod .
+RUN go mod download
+
+FROM golang:1.19 as build
+
+COPY --from=dependencies /go /go
+WORKDIR /build
+COPY . .
+
+RUN go build -o app
+FROM ubuntu as run
+
+COPY --from=build /build /build
+WORKDIR /build
+CMD ["./app"]
